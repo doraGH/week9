@@ -1,40 +1,50 @@
-// C3.js
-let chart = c3.generate({
-  bindto: '#chart', // HTML 元素綁定
-  data: {
-      type: "pie",
-      columns: [
-      ['Louvre 雙人床架', 1],
-      ['Antony 雙人床架', 2],
-      ['Anty 雙人床架', 3],
-      ['其他', 4],
-      ],
-      colors:{
-          "Louvre 雙人床架":"#DACBFF",
-          "Antony 雙人床架":"#9D7FEA",
-          "Anty 雙人床架": "#5434A7",
-          "其他": "#301E5F",
-      }
-  },
-});
-
-
 // 請代入自己的網址路徑
 const api_path = "dorayu";
 const token = "cJIYbqeVkPTQ8NKEr6OaqcWrcWI3";
 
 // 步驟一：初始化，取得產品與購物車列表
 // 取得產品列表
+let data = [];
 function getProductList() {
   axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/products`)
     .then(response =>{
-      console.log(response.data);
+      data = response.data.products;
+      console.log(data);
+      render(data);
     })
     .catch(error =>{
       console.log(error.response.data);
     })
 }
-// getProductList();
+getProductList();
+
+function render(data) {
+  const productWrap = document.querySelector(".productWrap");
+  let str = "";
+  data.forEach(item=> {
+    str += `
+      <li class="productCard">
+        <h4 class="productType">新品</h4>
+        <img src="${item.images}" alt="">
+        <a href="#" class="addCardBtn">加入購物車</a>
+        <h3>${item.title}</h3>
+        <del class="originPrice">NT$${toThousands(item.origin_price)}</del>
+        <p class="nowPrice">NT$${toThousands(item.price)}</p>
+      </li>
+    `;
+  });
+  productWrap.innerHTML = str;
+}
+
+// 千分位加逗點
+function toThousands(num) {
+  let comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
+  let result = num.toString().replace(comma, ',');  
+  // 去除小數點
+  result = result.replace(/\.\d+$/, '');
+  return result;
+}
+
 
 // 取得購物車列表
 function getCartList() {
