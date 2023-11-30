@@ -1,32 +1,34 @@
-// 請代入自己的網址路徑
 const api_path = "dorayu";
 const token = "cJIYbqeVkPTQ8NKEr6OaqcWrcWI3";
+let data = [];  // 產品列表
+let cartData = [];  // 購物車列表
+const productWrap = document.querySelector(".productWrap");  // 產品列表dom
+const shoppingCartBbody = document.querySelector(".shoppingCart-tbody"); // 購物車列表dom
 
 // 步驟一：初始化，取得產品與購物車列表
 // 取得產品列表
-let data = [];
 function getProductList() {
   axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/products`)
     .then(response =>{
       data = response.data.products;
-      console.log(data);
+      //console.log(data);
       render(data);
     })
     .catch(error =>{
-      console.log(error.response.data);
+      console.log(error.response.data.message);
     })
 }
 getProductList();
 
-function render(data) {
-  const productWrap = document.querySelector(".productWrap");
+// 渲染產品列表
+function render(data) {  
   let str = "";
   data.forEach(item=> {
     str += `
       <li class="productCard">
         <h4 class="productType">新品</h4>
         <img src="${item.images}" alt="">
-        <a href="#" class="addCardBtn">加入購物車</a>
+        <a href="#" class="addCardBtn" data-id="${item.id}">加入購物車</a>
         <h3>${item.title}</h3>
         <del class="originPrice">NT$${toThousands(item.origin_price)}</del>
         <p class="nowPrice">NT$${toThousands(item.price)}</p>
@@ -50,13 +52,42 @@ function toThousands(num) {
 function getCartList() {
   axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts`,)
     .then(response => {
-      console.log(response.data)
+      cartData =response.data.carts;
+      renderCartList(cartData)
     })
     .catch(error => {
-      console.log(error.response.data);
+      console.log(error.response.data.message);
     })
 }
-// getCartList();
+getCartList();
+
+// 渲染購物車列表
+function renderCartList(cartData){
+  let str = "";
+  cartData.forEach(item => {
+    console.log(item);
+    str +=`
+    <tr>
+      <td>
+        <div class="cardItem-title">
+          <img src="https://i.imgur.com/HvT3zlU.png" alt="">
+          <p>${item.product.title}</p>
+        </div>
+      </td>
+      <td>NT$${toThousands(item.product.price)}</td>
+      <td>${item.quantity}</td>
+      <td>NT$${toThousands(item.product.price * item.quantity)}</td>
+      <td class="discardBtn">
+        <a href="#" class="material-icons">
+          clear
+        </a>
+      </td>
+    </tr>
+    `;
+  });
+  shoppingCartBbody.innerHTML = str;
+}
+
 
 // 步驟二：新增購物車品項，並再次初始化購物車列表
 // 加入購物車
