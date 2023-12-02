@@ -790,7 +790,7 @@ body {
   opacity: 0.8;
 }
 
-.orderStatus {
+/* .orderStatus {
   position: relative;
 }
 
@@ -820,6 +820,12 @@ body {
 
 .orderStatus-done:hover {
   background-color: #747474;
+} */
+
+.orderStatus a {
+  padding: 10px;
+  display: block;
+  color: #0067CE;
 }
 
 .orderTableWrap {
@@ -834,6 +840,9 @@ body {
   display: none;
 }
 
+.orderList {
+  font-size: 14px;
+}
 
 /* loader product list */
 .loader {

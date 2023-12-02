@@ -1,6 +1,5 @@
 const api_path = "dorayu";
-const apiUrl = `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/`
-const token = "cJIYbqeVkPTQ8NKEr6OaqcWrcWI3";
+const apiUrl = `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/`;
 let data = [];  // 產品列表
 let cartData = [];  // 購物車列表
 
@@ -23,7 +22,7 @@ function getProductList() {
       renderProductList(data);
     })
     .catch(error =>{
-      console.log(error.response.data.message);
+      sweetError(error.response.data.message);
     })
 }
 
@@ -78,7 +77,8 @@ function getCartList() {
       renderCartList();
     })
     .catch(error => {
-      console.log(error.response.data.message);
+      // console.log(error.response.data.message);
+      sweetError(error.response.data.message);
     })
 }
 
@@ -142,7 +142,8 @@ function addCartItem(id) {
       getCartList(); // 重新渲染購物車
     })
     .catch(error => {
-      console.log(error.response.data);
+      // console.log(error.response.data.message);
+      sweetError(error.response.data.message);
     })
 }
 
@@ -156,7 +157,8 @@ function deleteAllCartList() {
       getCartList();
     })
     .catch(error => {
-      console.log(error.response.data);
+      // console.log(error.response.data.message);
+      sweetError(error.response.data.message);
     })
 }
 // 點擊全部刪除
@@ -175,7 +177,8 @@ function deleteCartItem(id) {
       getCartList(); // 重新渲染購物車
     })
     .catch(error => {
-      consoloe.log(error.response.data);
+      // consoloe.log(error.response.data.message);
+      sweetError(error.response.data.message);
     })
 }
 
@@ -191,99 +194,98 @@ function deleteSingleCart(e) {
 
 // 步驟四：送出購買訂單，並再次初始化購物車列表
 // 送出購買訂單
-function createOrder() {
+function addOrder() {
   const url = `${apiUrl}orders`;
   const data = {
     "data": {
       "user": {
-        "name": "六角學院",
-        "tel": "07-5313506",
-        "email": "hexschool@hexschool.com",
-        "address": "高雄市六角學院路",
-        "payment": "Apple Pay"
+        name: document.querySelector("#customerName").value.trim(),
+        tel: document.querySelector("#customerPhone").value.trim(),
+        email: document.querySelector("#customerEmail").value.trim(),
+        address: document.querySelector("#customerAddress").value.trim(),
+        payment: document.querySelector("#tradeWay").value.trim()
       }
     }
   };
   axios.post(url, data)
   .then(response => {
-    console.log(response.data);
+    getCartList();
   })
   .catch(error =>{
-    console.log(error.response.data);
+    // console.log(error.response.data.message);
+    sweetError(error.response.data.message);
   })
 }
 
+// 驗證器條件內容
+const constraints = {
+  姓名: {
+    presence: {
+      message: '是必填欄位',
+    },
+  },
+  電話: {
+    presence: {
+      message: '是必填欄位',
+    },
+    length: {
+      minimum: 8,
+      message: '號碼需超過 8 碼',
+    },
+  },
+  Email: {
+    presence: {
+      message: '是必填欄位',
+    },
+    email: {
+      message: '格式有誤',
+    },
+  },
+  寄送地址: {
+    presence: {
+      message: '是必填欄位',
+    },
+  },
+  交易方式: {
+    presence: {
+      message: '是必填欄位',
+    },
+  },
+};
+
+
 // 加入訂單
-const orderInfoBtn = document.querySelector(".orderInfo-btn");
-orderInfoBtn.addEventListener("click", addOrder);
-function addOrder(e){
-  e.preventDefault();
+const orderForm = document.querySelector(".orderInfo-form");
+orderForm.addEventListener("submit", validateFn);
+function validateFn(e){
+  e.preventDefault();  
+
   if(cartData.length === 0) {
     sweetError("您的購物車是空的!");
     return;
-  } else {
-    sweetAlert("OK");
   }
 
-  
-  // const orderInfoForm = document.querySelector(".orderInfo-form");
-  // const orderFormGroup = document.querySelectorAll(".orderInfo-formGroup");
+  let err = validate(orderForm, constraints);  // 通過驗證會是 undefined
+  const inputs = document.querySelectorAll("input[name], select[name]");
+  const orderMsg = document.querySelectorAll("[data-message]");
 
-  // orderFormGroup.forEach(item => {
-  //   const inputs = document.querySelectorAll("input[name], select[name]");
-  //   inputs.forEach(item => {
-  //     item.addEventListener("change", function(){
-  //       console.log(item);
-  //     });
-  //   });
-  // });
-
+  if(!err){    
+    addOrder(); // 通過則傳送資料
+    sweetAlert("您成功送出訂單!");  // 過場動態
+    inputs.forEach(item => {
+      item.value = "";
+    });
+    orderMsg.forEach(item => {
+      item.textContent = "必填";
+    });
+  } else {
+    // 未通過時,message訊息改成驗證訊息
+    orderMsg.forEach(item =>{
+      item.textContent = err[item.dataset.message];
+    })
+  }
 }
 
 
 
-
-// 步驟五：觀看後台訂單
-// 取得訂單列表
-// function getOrderList() {
-//   axios.get(`${apiUrl}orders`, {
-//     headers: {
-//       'Authorization': token
-//     }
-//   })
-//   .then(function (response) {
-//     console.log(response.data);
-//   })
-// }
-
-// 千分位加逗點
-function toThousands(num) {
-  let comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
-  let result = num.toString().replace(comma, ',');  
-  // 去除小數點
-  result = result.replace(/\.\d+$/, '');
-  return result;
-}
-
-// 過場動態
-function sweetAlert(txt){
-  Swal.fire({
-    position: "center",    
-    icon: "success",
-    title: txt,
-    showConfirmButton: false,
-    timer: 1500,
-    color: "#ffffff",
-    background: "#716add",
-  }); 
-}
-function sweetError(txt){
-  Swal.fire({
-    icon: "error",
-    title: "Oops...",
-    text: txt,
-    color: "#ffffff",
-    background: "#716add",
-  });
-}
 
