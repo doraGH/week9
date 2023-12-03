@@ -77,13 +77,12 @@ function getCartList() {
       renderCartList();
     })
     .catch(error => {
-      // console.log(error.response.data.message);
       sweetError(error.response.data.message);
     })
 }
 
 // 渲染購物車列表
-const shoppingCartBbody = document.querySelector(".shoppingCart-tbody");
+const shoppingCartBody = document.querySelector(".shoppingCart-tbody");
 function renderCartList(){
   let str = "";
   cartData.forEach(item => { 
@@ -106,7 +105,7 @@ function renderCartList(){
     </tr>
     `;
   });
-  shoppingCartBbody.innerHTML = str;
+  shoppingCartBody.innerHTML = str;
 }
 
 // 步驟二：新增購物車品項，並再次初始化購物車列表
@@ -142,7 +141,6 @@ function addCartItem(id) {
       getCartList(); // 重新渲染購物車
     })
     .catch(error => {
-      // console.log(error.response.data.message);
       sweetError(error.response.data.message);
     })
 }
@@ -157,7 +155,6 @@ function deleteAllCartList() {
       getCartList();
     })
     .catch(error => {
-      // console.log(error.response.data.message);
       sweetError(error.response.data.message);
     })
 }
@@ -177,13 +174,12 @@ function deleteCartItem(id) {
       getCartList(); // 重新渲染購物車
     })
     .catch(error => {
-      // consoloe.log(error.response.data.message);
       sweetError(error.response.data.message);
     })
 }
 
 // 監聽購物車列表
-shoppingCartBbody.addEventListener("click", deleteSingleCart);
+shoppingCartBody.addEventListener("click", deleteSingleCart);
 function deleteSingleCart(e) {
   e.preventDefault();
   const deleteBtnClass = e.target.getAttribute("class");
@@ -212,7 +208,6 @@ function addOrder() {
     getCartList();
   })
   .catch(error =>{
-    // console.log(error.response.data.message);
     sweetError(error.response.data.message);
   })
 }
@@ -273,8 +268,9 @@ function validateFn(e){
     addOrder(); // 通過則傳送資料
     sweetAlert("您成功送出訂單!");  // 過場動態
     inputs.forEach(item => {
-      item.value = "";
+      item.value = "";      
     });
+    document.querySelector("#tradeWay").value = "ATM";
     orderMsg.forEach(item => {
       item.textContent = "必填";
     });

@@ -26,7 +26,10 @@
   </nav>
   <section class="wrap">
     <h2 class="section-title">全品項營收比重</h2>
-    <div id="chart"></div>
+    <div class="c3-wrap">    
+      <div id="chart"></div>
+      <div id="chart2"></div>
+    </div>
   </section>
   <section class="wrap orderPage-list">
     <a href="#" class="discardAllBtn">清除全部訂單</a>
@@ -45,7 +48,7 @@
           </tr>
         </thead>
         <tbody class="orderList">
-          <tr>
+          <!-- <tr>
             <td>10088377474</td>
             <td>
               <p>小杰</p>
@@ -101,7 +104,7 @@
             <td>
               <input type="button" class="delSingleOrder-Btn" value="刪除">
             </td>
-          </tr>
+          </tr> -->
         </tbody>
       </table>
     </div>
@@ -136,7 +139,7 @@ function closeMenu() {
   menu.classList.remove('openMenu');
 }
 </script>
-<script src="js/admin.js"></script>
 <script src="js/commonUtils.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>

@@ -827,6 +827,11 @@ body {
   display: block;
   color: #0067CE;
 }
+.orderStatus a.processed {
+  color: gray;
+  text-decoration: none;
+  pointer-events: none;
+}
 
 .orderTableWrap {
   overflow-x: scroll;
@@ -864,6 +869,11 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-
+.c3-wrap {
+  display: flex;
+}
+.c3-wrap > div {
+  width: 50%;
+}
 
 /*# sourceMappingURL=all.css.map */
