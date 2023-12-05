@@ -20,6 +20,7 @@ function getProductList() {
     .then(response =>{
       data = response.data.products;
       renderProductList(data);
+      getCategories();
     })
     .catch(error =>{
       sweetError(error.response.data.message);
@@ -62,6 +63,24 @@ function filterProduct(e){
   }
   renderProductList(filterData);  // 渲染畫面
 }
+
+// 取得下拉選項元素
+function getCategories() {
+  let usSort = data.map(item => item.category);
+  console.log(usSort);
+  let sorted = usSort.filter((item,i) => usSort.indexOf(item) === i);
+  renderCategories(sorted); // 呼叫渲染函式
+}
+
+// 渲染下拉資料
+function renderCategories(sorted){
+  let str = `<option value="全部" selected>全部</option>`;
+  sorted.forEach(item => {
+    str += `<option value="${item}">${item}</option>`;
+  });
+  productSelect.innerHTML = str;
+}
+
 
 // 取得購物車列表
 function getCartList() {
