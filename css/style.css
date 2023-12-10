@@ -204,7 +204,7 @@ body {
 
 .banner {
   position: relative;
-  background-image: url("https://github.com/hexschool/js-training/blob/main/%E7%AC%AC%E4%B9%9D%E9%80%B1%E4%B8%BB%E7%B7%9A%E4%BB%BB%E5%8B%99%E5%9C%96%E5%BA%AB/3ewLAKn.png?raw=true");
+  background-image: url("../images/3ewLAKn.png");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -616,11 +616,11 @@ body {
   text-align: left;
 }
 
-.shoppingCart-table tr {
+.shoppingCart-table tr:not(:only-child) {
   border-bottom: 1px solid #B9B9B9;
 }
 
-.shoppingCart-table tr:first-child, .shoppingCart-table tr:last-child {
+.shoppingCart-table tr:last-child {
   border-bottom: 0;
 }
 
@@ -642,6 +642,11 @@ body {
 .cardItem-title img {
   margin-right: 15px;
   max-width: 80px;
+}
+
+.cardItem-num a {
+  padding: 10px;
+  vertical-align: middle;
 }
 
 .discardBtn {
@@ -827,11 +832,11 @@ body {
   display: block;
   color: #0067CE;
 }
-.orderStatus a.processed {
+/* .orderStatus a.processed {
   color: gray;
   text-decoration: none;
   pointer-events: none;
-}
+} */
 
 .orderTableWrap {
   overflow-x: scroll;

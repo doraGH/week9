@@ -19,8 +19,9 @@ function getOrderList() {
   const url = `${apiUrl}orders`;  
   axios.get(url, token)
   .then(response => {
-    orderData = response.data.orders;    
-    renderOrderList();
+    orderData = response.data.orders;
+    orderData.sort((a, b) => b.createdAt - a.createdAt);
+    renderOrderList(orderData);
     categoryC3(); // C3圖表-LV1
     revenueC3(); // C3圖表-LV2
   })
@@ -31,10 +32,10 @@ function getOrderList() {
 
 // 渲染訂單列表
 const orderList = document.querySelector(".orderList");
-function renderOrderList() {  
+function renderOrderList(mydata) {  
   let str = "";
-  orderData.forEach(item => {
-    // console.log(item);
+
+  mydata.forEach(item => {
     // 組產品字串
     let productStr = "";
     item.products.forEach(productItem => {
@@ -60,7 +61,7 @@ function renderOrderList() {
         </td>
         <td>${thisTime}</td>
         <td class="orderStatus">
-          <a href="#" data-id="${item.id}" class="js-orderStatus ${item.paid ? 'processed' : ''}">${item.paid ? "已處理" : "未處理"}</a>
+          <a href="#" data-id="${item.id}" data-paid="${item.paid}" class="js-orderStatus">${item.paid ? "已處理" : "未處理"}</a>
         </td>
         <td>
           <input type="button" class="delSingleOrder-Btn" data-id="${item.id}" value="刪除">
@@ -70,6 +71,7 @@ function renderOrderList() {
   });
   orderList.innerHTML = str;
 }
+
 
 // 清除全部訂單
 const discardAllBtn = document.querySelector(".discardAllBtn");
@@ -81,9 +83,10 @@ discardAllBtn.addEventListener("click", (e) => {
 function deleteAllOrderList() {
   const url = `${apiUrl}orders`;
   axios.delete(url, token)
-    .then(response => {      
+    .then(response => {   
+      orderData = response.data.orders;
       sweetAlert("成功刪除全部訂單!");  // 過場動態
-      getOrderList();
+      renderOrderList(orderData);
     })
     .catch(error => {
       sweetError(error.response.data.message);
@@ -95,8 +98,9 @@ function deleteOrderItem(id) {
   const url = `${apiUrl}orders/${id}`;
   axios.delete(url, token)
     .then(response => {      
+      orderData = response.data.orders;
       sweetAlert("成功刪除一筆訂單!");  // 過場動態
-      getOrderList(); // 重新渲染訂單列表
+      renderOrderList(orderData); // 重新渲染訂單列表
     })
     .catch(error => {
       sweetError(error.response.data.message);
@@ -104,18 +108,19 @@ function deleteOrderItem(id) {
 }
 
 // 修改訂單狀態
-function editOrderStatus(id) {
+function editOrderStatus(id, paid) {
   const url = `${apiUrl}orders`;
   const data = {
     "data": {
       "id": id,
-      "paid": true
+      "paid": paid
     }
   }
   axios.put(url, data ,token) // axios 放置順序
-    .then(response => {      
+    .then(response => {    
+      orderData = response.data.orders;
       sweetAlert("成功修改訂單狀態!");  // 過場動態
-      getOrderList(); // 重新渲染訂單列表
+      renderOrderList(orderData); // 重新渲染訂單列表
     })
     .catch(error => {
       sweetError(error.response.data.message);
@@ -135,9 +140,16 @@ function deleteSingleOrder(e) {
     deleteOrderItem(statusId);
     return
   }
-  if(orderClass === "js-orderStatus" || orderClass === "js-orderStatus ") {
+  if(orderClass === "js-orderStatus") {
     const statusId = e.target.dataset.id;
-    editOrderStatus(statusId);
+    const statusPaid = e.target.dataset.paid;
+    let newStatus;
+    if (statusPaid == 'true') {
+      newStatus = false;
+    } else {
+      newStatus = true;
+    }
+    editOrderStatus(statusId, newStatus);
     return
   }
 }
@@ -163,7 +175,6 @@ function categoryC3(){
     ary.push(obj[item]);
     newData.push(ary);
   });
-  // console.log(newData)
 
   // 顏色
   let colors = ["#DACBFF","#9D7FEA","#5434A7","#301E5F"];
@@ -206,7 +217,6 @@ function revenueC3() {
   if(newData.length > 3) {
     let otherPrice = 0;
     newData.forEach((item,index) => {
-      // console.log(item)
       if(index > 2) { // 從0開始算, 索引第4筆開始計算加總
         otherPrice += item[1];
       }

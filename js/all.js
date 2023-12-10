@@ -67,7 +67,6 @@ function filterProduct(e){
 // 取得下拉選項元素
 function getCategories() {
   let usSort = data.map(item => item.category);
-  console.log(usSort);
   let sorted = usSort.filter((item,i) => usSort.indexOf(item) === i);
   renderCategories(sorted); // 呼叫渲染函式
 }
@@ -93,7 +92,7 @@ function getCartList() {
       const totalCartPrice = document.querySelector(".totalCartPrice");
       totalCartPrice.textContent = toThousands(response.data.finalTotal);
       
-      renderCartList();
+      renderCartList(cartData);
     })
     .catch(error => {
       sweetError(error.response.data.message);
@@ -102,19 +101,23 @@ function getCartList() {
 
 // 渲染購物車列表
 const shoppingCartBody = document.querySelector(".shoppingCart-tbody");
-function renderCartList(){
+function renderCartList(mydata){
   let str = "";
-  cartData.forEach(item => { 
+  mydata.forEach(item => { 
     str +=`
     <tr>
       <td>
         <div class="cardItem-title">
-          <img src="https://i.imgur.com/HvT3zlU.png" alt="">
+          <img src="${item.product.images}" alt="">
           <p>${item.product.title}</p>
         </div>
       </td>
       <td>NT$${toThousands(item.product.price)}</td>
-      <td>${item.quantity}</td>
+      <td class="cardItem-num">
+        <a href="#"><span class="material-icons cartAmount-icon" data-num="${item.quantity - 1}" data-id="${item.id}">remove</span></a>
+        ${item.quantity}
+        <a href="#"><span class="material-icons cartAmount-icon" data-num="${item.quantity + 1}" data-id="${item.id}">add</span></a>
+      </td>
       <td>NT$${toThousands(item.product.price * item.quantity)}</td>
       <td class="discardBtn">
         <a href="#" data-id=${item.id} class="material-icons">
@@ -156,8 +159,9 @@ function addCartItem(id) {
   };
   axios.post(url,data)
     .then(response => {
+      cartData = response.data.carts;
       sweetAlert("成功加入購物車!");  // 過場動態
-      getCartList(); // 重新渲染購物車
+      renderCartList(cartData); // 重新渲染購物車
     })
     .catch(error => {
       sweetError(error.response.data.message);
@@ -197,14 +201,52 @@ function deleteCartItem(id) {
     })
 }
 
+// 編輯購物車產品數量
+function editCartNum(num, id){
+  if(num > 0) {    
+    const url = `${apiUrl}carts`;
+    const data = {
+      "data": {
+        "id": id,
+        "quantity": num
+      }
+    };
+    axios.patch(url,data)
+      .then(response => {
+        cartData = response.data.carts;  
+        sweetAlert("成功修改購物車產品數量!");  // 過場動態      
+        renderCartList(cartData);        
+      })
+      .catch(error => {
+        sweetError(error.response.data.message);
+      })
+  } else {
+    deleteCartItem(id);
+  }
+}
+
 // 監聽購物車列表
 shoppingCartBody.addEventListener("click", deleteSingleCart);
 function deleteSingleCart(e) {
   e.preventDefault();
   const deleteBtnClass = e.target.getAttribute("class");
-  if(deleteBtnClass !== "material-icons") return;
-  const cartId = e.target.dataset.id;    
-  deleteCartItem(cartId);   
+  if(deleteBtnClass === "material-icons"){
+    const cartId = e.target.dataset.id;    
+    deleteCartItem(cartId);   // 刪除單筆購物車
+  } else if(deleteBtnClass === "material-icons cartAmount-icon") {
+    const cartId = e.target.dataset.id;
+    const num = Number(e.target.dataset.num);
+    editCartNum(num, cartId);
+  } else {
+    return
+  }
+  
+
+
+  // if(deleteBtnClass !== "material-icons") return;
+  // const cartId = e.target.dataset.id;    
+  // deleteCartItem(cartId);   // 刪除單筆購物車
+
 }
 
 // 步驟四：送出購買訂單，並再次初始化購物車列表
@@ -280,14 +322,14 @@ function validateFn(e){
   }
 
   let err = validate(orderForm, constraints);  // 通過驗證會是 undefined
-  const inputs = document.querySelectorAll("input[name], select[name]");
+  const inputs = document.querySelectorAll(".orderInfo-input");
   const orderMsg = document.querySelectorAll("[data-message]");
 
   if(!err){    
     addOrder(); // 通過則傳送資料
     sweetAlert("您成功送出訂單!");  // 過場動態
     inputs.forEach(item => {
-      item.value = "";      
+      item.value = "";    
     });
     document.querySelector("#tradeWay").value = "ATM";
     orderMsg.forEach(item => {
